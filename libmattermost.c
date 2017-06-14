@@ -115,6 +115,7 @@ json_object_to_string(JsonObject *obj)
 
 #define MATTERMOST_DEFAULT_SERVER ""
 #define MATTERMOST_SERVER_SPLIT_CHAR '|'
+#define MATTERMOST_CHANNEL_SPLIT_CHAR '/'
 
 #define MATTERMOST_CHANNEL_OPEN 'O'
 #define MATTERMOST_CHANNEL_PRIVATE 'P'
@@ -1020,7 +1021,9 @@ mm_add_channels_to_blist(MattermostAccount *ma, JsonNode *node, gpointer user_da
 	for (i = 0; i < len; i++) {
 		JsonObject *channel = json_array_get_object_element(channels, i);
 		const gchar *id = json_object_get_string_member(channel, "id");
-		const gchar *name = json_object_get_string_member(channel, "display_name");
+		const gchar *channel_name = json_object_get_string_member(channel, "display_name");
+		const gchar *team_name = (gchar*) g_hash_table_lookup(ma->teams, team_id);
+		const gchar *name = g_strconcat(team_name, (gchar [2]) { MATTERMOST_CHANNEL_SPLIT_CHAR, '\0' }, channel_name, NULL);
 		const gchar *room_type = json_object_get_string_member(channel, "type");
 		
 		if (room_type && *room_type == MATTERMOST_CHANNEL_DIRECT) {
